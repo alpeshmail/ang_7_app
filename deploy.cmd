@@ -96,24 +96,17 @@ call :SelectNodeVersion
 echo "Deployment target: - "
 echo "%DEPLOYMENT_TARGET%\package.json"
 
-:: 3. Install npm packages
 IF EXIST "%DEPLOYMENT_TARGET%\package.json" (
   pushd "%DEPLOYMENT_TARGET%"
-  call :ExecuteCmd !NPM_CMD! install --production
+  echo "Deploymet target" + "%DEPLOYMENT_TARGET%"
+  call :ExecuteCmd !NPM_CMD! config set progress=false
+  call :ExecuteCmd !NPM_CMD! install --only=prod
+  call :ExecuteCmd !NPM_CMD! install --only=dev
+  call :ExecuteCmd !NPM_CMD! run build
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
 
-:: 3. Angular Prod Build
-IF EXIST "%DEPLOYMENT_SOURCE%/.angular-cli.json" (
-echo Building App in %DEPLOYMENT_SOURCE%…
-pushd "%DEPLOYMENT_SOURCE%"
-call :ExecuteCmd !NPM_CMD! run build
-:: If the above command fails comment above and uncomment below one
-:: call ./node_modules/.bin/ng build –prod
-IF !ERRORLEVEL! NEQ 0 goto error
-popd
-)
 
 :: 1. KuduSync
 IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
