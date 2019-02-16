@@ -18,6 +18,7 @@ jobs:
 
     steps:
       - checkout
+      - setup-remote-docker
 
       # Download and cache dependencies
       - restore_cache:
@@ -35,3 +36,13 @@ jobs:
 
       # run tests!
       - run: yarn ng build --prod
+      - run:
+         command: |
+           docker build -t mydocservice.azurecr.io/alpang:1.0
+      - run:
+          command: |
+            docker login --username $DOCKER_USER --password $DOCKER_PASS mydocservice.azurecr.io
+      - run:
+          command: |
+            docker push mydocservice.azurecr.io/alpang:1.0
+
